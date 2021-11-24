@@ -31,7 +31,7 @@ struct HalfModalSheet<Sheet: View>: UIViewControllerRepresentable {
     var sheet: Sheet
     @Binding var isShow: Bool
     var onClose: () -> Void
-    
+        
     func makeUIViewController(context: Context) -> UIViewController {
         UIViewController()
     }
@@ -44,9 +44,12 @@ struct HalfModalSheet<Sheet: View>: UIViewControllerRepresentable {
             let sheetController = CustomHostingController(rootView: sheet)
             sheetController.presentationController!.delegate = context.coordinator
             sheetController.view.backgroundColor = nil
+            context.coordinator.isVisible = true
             viewController.present(sheetController, animated: true)
         } else {
-            viewController.dismiss(animated: true) { onClose() }
+            if context.coordinator.isVisible {
+                viewController.dismiss(animated: true) { onClose() }
+            }
         }
     }
     
@@ -69,6 +72,7 @@ struct HalfModalSheet<Sheet: View>: UIViewControllerRepresentable {
     
     final class Coordinator: NSObject, UISheetPresentationControllerDelegate {
         var parent: HalfModalSheet
+        var isVisible = false
         
         init(parent: HalfModalSheet) {
             self.parent = parent
